@@ -1,0 +1,61 @@
+spec_version: 1
+name: incident-response-triage
+version: "1.0.0"
+description: >
+  An OpenEnv environment simulating production incident response and triage.
+  AI agents act as Site Reliability Engineers (SREs) who must diagnose and
+  resolve real-world infrastructure incidents across a microservices architecture.
+
+author: Team Meta
+tags: [devops, sre, incident-response, triage, microservices, observability]
+
+runtime: docker
+app: app.py
+port: 7860
+
+api:
+  base_path: /
+  endpoints:
+    reset: POST /reset
+    step: POST /step
+    state: GET /state
+    tasks: GET /tasks
+
+tasks:
+  - id: task_easy
+    name: "Memory Leak Detection"
+    description: "Identify and resolve a memory leak in a single service with clear symptoms and straightforward diagnosis."
+    difficulty: easy
+    reward_range: [0.0, 1.0]
+
+  - id: task_medium
+    name: "Database Connection Exhaustion"
+    description: "Diagnose cascading failures caused by database connection pool exhaustion affecting multiple services."
+    difficulty: medium
+    reward_range: [0.0, 1.0]
+
+  - id: task_hard
+    name: "Cascading Deployment Failure"
+    description: "Investigate a complex cascading failure with misleading symptoms caused by a bad service deployment."
+    difficulty: hard
+    reward_range: [0.0, 1.0]
+
+observation_space:
+  type: object
+  properties:
+    alerts: {type: array, description: "Active alerts with severity, service, message, and timestamp"}
+    services: {type: object, description: "Map of service name → metrics (CPU, memory, latency, errors, connections, status)"}
+    action_result: {type: string, description: "Output/result from the last command executed"}
+    step_number: {type: integer}
+    steps_remaining: {type: integer}
+    incident_resolved: {type: boolean}
+    task_id: {type: string}
+    done: {type: boolean}
+
+action_space:
+  type: string
+  description: >
+    Text commands: INVESTIGATE <service>, CHECK_METRICS <service>,
+    CHECK_DEPENDENCIES <service>, RESTART <service>, SCALE <service> <N>,
+    ROLLBACK <service>, FLUSH_CACHE, INCREASE_CONNECTIONS <service>,
+    DIAGNOSE <root_cause>, RESOLVE <summary>

@@ -1,0 +1,120 @@
+============================================================
+Incident Response Triage — Inference Script
+============================================================
+
+────────────────────────────────────────
+Running task: task_easy
+────────────────────────────────────────
+{"type": "[START]", "task_id": "task_easy", "env": "incident-response-triage", "model": "gpt-4o-mini", "alerts_count": 3, "max_steps": 15}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 1, "action": "INVESTIGATE web-frontend", "reward": 0.04, "total_reward": 0.04, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 2, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": 0.03, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 3, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": 0.02, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 4, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": 0.01, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 5, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.0, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 6, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.01, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 7, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.02, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 8, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.03, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 9, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.04, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 10, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.05, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 11, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.06, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 12, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.07, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 13, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.08, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 14, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.09, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 15, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.1, "done": true, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.] | Max steps reached."}
+{"type": "[END]", "task_id": "task_easy", "success": false, "total_steps": 15, "total_reward": -0.1, "score": 0.0, "rewards": [0.04, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01], "milestones": {"investigated_root_service": false, "investigated_context": true, "correct_diagnosis": false, "correct_remediation": false, "incident_resolved": false}}
+
+────────────────────────────────────────
+Running task: task_medium
+────────────────────────────────────────
+{"type": "[START]", "task_id": "task_medium", "env": "incident-response-triage", "model": "gpt-4o-mini", "alerts_count": 5, "max_steps": 20}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 1, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.01, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 2, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.02, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 3, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.03, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+[LLM ERROR] Error code: 429 - {'error': {'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.', 'type': 'insufficient_quota', 'param': None, 'code': 'insufficient_quota'}}
+{"type": "[STEP]", "step": 4, "action": "INVESTIGATE web-frontend", "reward": -0.01, "total_reward": -0.04, "done": false, "message": "=== Logs for web-frontend ===\n[No anomalies detected. Service operating normally.]"}
+Traceback (most recent call last):
+  File "/home/robotics-mu/Documents/Meta Hackathon/inference.py", line 209, in <module>
+    main()
+  File "/home/robotics-mu/Documents/Meta Hackathon/inference.py", line 195, in main
+    score = run_task(task_id)
+            ^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/inference.py", line 134, in run_task
+    action = get_action(obs, history)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/inference.py", line 91, in get_action
+    response = client.chat.completions.create(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/openai/_utils/_utils.py", line 286, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/openai/resources/chat/completions/completions.py", line 1211, in create
+    return self._post(
+           ^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/openai/_base_client.py", line 1297, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/openai/_base_client.py", line 1005, in request
+    response = self._client.send(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/robotics-mu/Documents/Meta Hackathon/Meta/lib/python3.12/site-packages/httpcore/_backends/sync.py", line 128, in read
+    return self._sock.recv(max_bytes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1233, in recv
+    return self.read(buflen)
+           ^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/ssl.py", line 1106, in read
+    return self._sslobj.read(len)
+           ^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
