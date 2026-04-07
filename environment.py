@@ -1,144 +1,158 @@
-import math
-import random
-import sys
-from models import Observation, Action, State
+from typing import Any, Dict
+from models import Observation, State
+from scenarios import SCENARIOS
 
-# Global flag to track if we are running in real simulation or fallback mode
-USE_REAL_ISAAC = False
-
-try:
-    # We attempt to import isaaclab. If we are running inside HF Spaces CPU container, 
-    # this will fail gracefully and we will use the fallback mathematically simulated proxy environment.
-    import isaaclab.sim as sim_utils
-    # USE_REAL_ISAAC = True # Set manually if running on a local GPU
-except ImportError:
-    pass
-
-class IncidentResponseEnv:
+class GarbageRobotEnv:
+    """
+    Core RL Environment for the Garbage Collecting Robot.
+    """
     def __init__(self):
-        self.task_id = None
-        self.steps = 0
-        self.max_steps = 25
-        self.total_reward = 0.0
-        self.done = False
-
-        # Internal state for the Mock mathematical robot (if Isaac is unavailable)
-        self.robot_pos = [0.0, 0.0, 0.0]
-        self.robot_heading = 0.0
-        self.target_pos = [2.0, 2.0, 0.0]
+        self.current_task_id = None
+        self.grid_size = (0, 0)
+        self.robot_position = (0, 0)
+        self.garbage_positions = []
+        self.obstacle_positions = []
+        self.battery_level = 0
+        self.max_battery = 0
+        self.inventory_count = 0
         
-        # Action space mapping to continuous velocities [v_left, v_right]
-        self.action_map = {
-            "FORWARD": (1.0, 1.0),
-            "BACKWARD": (-1.0, -1.0),
-            "TURN_LEFT": (-0.5, 0.5),
-            "TURN_RIGHT": (0.5, -0.5),
-            "STOP": (0.0, 0.0)
-        }
+        self.total_reward = 0.0
+        self.steps_taken = 0
+        self.done = False
 
     def reset(self, task_id: str) -> State:
-        self.task_id = task_id
-        self.steps = 0
-        self.total_reward = 0.0
-        self.done = False
-
-        # Reset Mock Robot
-        self.robot_pos = [0.0, 0.0, 0.0]
-        self.robot_heading = 0.0
+        if task_id not in SCENARIOS:
+            raise ValueError(f"Task ID {task_id} not found in scenarios.")
         
-        if task_id == "task_easy":
-            self.target_pos = [2.0, 0.0, 0.0]
-        elif task_id == "task_medium":
-            self.target_pos = [4.0, 2.0, 0.0]
-        else:
-            self.target_pos = [5.0, -3.0, 0.0]
-
+        scenario = SCENARIOS[task_id]
+        self.current_task_id = task_id
+        self.grid_size = scenario["grid_size"]
+        self.robot_position = list(scenario["robot_start"])
+        self.garbage_positions = [list(g) for g in scenario["garbage_starts"]]
+        self.obstacle_positions = [list(o) for o in scenario["obstacle_starts"]]
+        self.battery_level = scenario["max_battery"]
+        self.max_battery = scenario["max_battery"]
+        self.inventory_count = 0
+        
+        self.total_reward = 0.0
+        self.steps_taken = 0
+        self.done = False
+        
         return self.state()
 
-    def get_observation(self) -> Observation:
-        dx = self.target_pos[0] - self.robot_pos[0]
-        dy = self.target_pos[1] - self.robot_pos[1]
-        dist = math.sqrt(dx**2 + dy**2)
-        
-        # Calculate heading error
-        target_angle = math.atan2(dy, dx)
-        heading_error = target_angle - self.robot_heading
-        
-        # Normalize heading error to [-pi, pi]
-        heading_error = (heading_error + math.pi) % (2 * math.pi) - math.pi
+    def get_observation(self, message: str = "") -> Observation:
+        if not message:
+            message = f"You are at {tuple(self.robot_position)}. "
+            if self.garbage_positions:
+                message += f"Garbage remaining: {len(self.garbage_positions)}. "
+            else:
+                message += "All garbage collected! "
+            message += f"Battery: {self.battery_level}/{self.max_battery}."
 
         return Observation(
-            target_pos=[dx, dy, 0.0],
-            heading_error=heading_error,
-            distance_to_target=dist,
-            stagnation_warn=(self.steps > 15 and dist > 1.5),
-            message="Robot sensors normal. Obstacles clear."
+            grid_size=self.grid_size,
+            robot_position=tuple(self.robot_position),
+            garbage_positions=[tuple(g) for g in self.garbage_positions],
+            obstacle_positions=[tuple(o) for o in self.obstacle_positions],
+            battery_level=self.battery_level,
+            inventory_count=self.inventory_count,
+            message=message
         )
 
-    def step(self, command: str) -> dict:
+    def state(self) -> State:
+        return State(
+            task_id=self.current_task_id,
+            total_reward=self.total_reward,
+            steps_taken=self.steps_taken,
+            done=self.done
+        )
+
+    def step(self, command: str) -> Dict[str, Any]:
         if self.done:
-            return {"reward": 0.0, "done": True, "observation": self.get_observation().model_dump()}
+            obs = self.get_observation("Episode already finished.")
+            return {"observation": obs.model_dump(), "reward": 0.0, "done": True, "info": {}}
 
-        self.steps += 1
+        reward = -0.1  # small base penalty for taking a step
+        message = ""
         
-        # 1. Decode Action
-        if command not in self.action_map:
-            command = "STOP"
-        
-        v_left, v_right = self.action_map[command]
-        
-        # 2. Mathematical Mock Simulation Update
-        # Assuming simple differential drive kinematics
-        dt = 0.5
-        v = (v_left + v_right) / 2.0
-        omega = (v_right - v_left) / 1.0  # Simple wheelbase proxy
-        
-        self.robot_heading += omega * dt
-        self.robot_pos[0] += v * math.cos(self.robot_heading) * dt
-        self.robot_pos[1] += v * math.sin(self.robot_heading) * dt
+        self.battery_level -= 1
+        self.steps_taken += 1
 
-        obs = self.get_observation()
+        new_pos = list(self.robot_position)
         
-        # 3. Calculate Reward (shaped)
-        reward = -0.01  # time penalty
-        if command == "FORWARD" and obs.distance_to_target < 5.0 and abs(obs.heading_error) < 0.5:
-            reward += 0.1 # progressing towards target
-            
-        if obs.distance_to_target < 0.5:
+        if command == "UP":
+            new_pos[1] += 1
+        elif command == "DOWN":
+            new_pos[1] -= 1
+        elif command == "LEFT":
+            new_pos[0] -= 1
+        elif command == "RIGHT":
+            new_pos[0] += 1
+        elif command == "COLLECT":
+            # Check if garbage is at current pos
+            if self.robot_position in self.garbage_positions:
+                self.garbage_positions.remove(self.robot_position)
+                self.inventory_count += 1
+                reward += 10.0
+                message = "Collected garbage!"
+            else:
+                reward -= 1.0
+                message = "No garbage to collect here."
+        else:
+            reward -= 1.0
+            message = f"Invalid command: {command}."
+
+        # Apply movement logic if movement command
+        if command in ["UP", "DOWN", "LEFT", "RIGHT"]:
+            # Check grid bounds
+            if (0 <= new_pos[0] < self.grid_size[0]) and (0 <= new_pos[1] < self.grid_size[1]):
+                if new_pos in self.obstacle_positions:
+                    reward -= 5.0
+                    # Tell the agent exactly which directions are blocked from current pos
+                    blocked = []
+                    direction_map = {"UP": [0,1], "DOWN": [0,-1], "LEFT": [-1,0], "RIGHT": [1,0]}
+                    for d, delta in direction_map.items():
+                        neighbour = [self.robot_position[0]+delta[0], self.robot_position[1]+delta[1]]
+                        if neighbour in self.obstacle_positions:
+                            blocked.append(d)
+                    blocked_str = ", ".join(blocked) if blocked else "none"
+                    message = (
+                        f"BLOCKED! {command} is an obstacle. Do NOT try {command} again. "
+                        f"Blocked directions from here: {blocked_str}. "
+                        f"Choose a different direction."
+                    )
+                else:
+                    self.robot_position = new_pos
+                    message = f"Moved {command}."
+            else:
+                reward -= 1.0
+                message = f"Hit a wall trying to move {command}. Do NOT try {command} again from this position."
+
+        # Check termination conditions
+        if len(self.garbage_positions) == 0:
             self.done = True
-            reward += 10.0 # Reached target!
-        elif self.steps >= self.max_steps:
+            reward += 50.0  # Completion bonus
+            message += " All garbage collected! Task complete."
+        elif self.battery_level <= 0:
             self.done = True
+            message += " Battery depleted! Game over."
 
         self.total_reward += reward
 
         return {
+            "observation": self.get_observation(message).model_dump(),
             "reward": reward,
             "done": self.done,
-            "observation": obs.model_dump()
+            "info": {"inventory_count": self.inventory_count, "steps": self.steps_taken}
         }
 
-    def state(self) -> State:
-        return State(
-            task_id=self.task_id,
-            total_reward=self.total_reward,
-            steps_taken=self.steps,
-            done=self.done
-        )
-
     def grade(self, task_id: str) -> float:
-        """
-        Grader function to verify the task is solvable.
-        We run a simple proportional controller to solve the mock env.
-        """
-        self.reset(task_id)
-        while not self.done:
-            obs = self.get_observation()
-            if abs(obs.heading_error) > 0.3:
-                action = "TURN_LEFT" if obs.heading_error > 0 else "TURN_RIGHT"
-            else:
-                action = "FORWARD"
-            self.step(action)
+        # Standardised metric [0.0, 1.0] for leaderboard
+        if task_id not in SCENARIOS:
+            return 0.0
         
-        obs = self.get_observation()
-        return 1.0 if obs.distance_to_target < 0.5 else 0.0
+        # Max out at 1.0 if all garbage collected, proportional otherwise
+        total_starting_garbage = len(SCENARIOS[task_id]["garbage_starts"])
+        collected = self.inventory_count
+        
+        return min(max(collected / total_starting_garbage, 0.0), 1.0)

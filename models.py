@@ -1,19 +1,21 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Literal, Optional
+from typing import List, Literal, Optional, Tuple
 
 # --- Custom observation and action logic ---
 
 class Observation(BaseModel):
     model_config = ConfigDict(strict=True)
-    target_pos: List[float]       # [x, y, z] relative distance to target
-    heading_error: float          # Deviation from target angle (radians)
-    distance_to_target: float     # Euclidian distance
-    stagnation_warn: bool         # Warning if the robot hasn't made progress
+    grid_size: Tuple[int, int]
+    robot_position: Tuple[int, int]
+    garbage_positions: List[Tuple[int, int]]
+    obstacle_positions: List[Tuple[int, int]]
+    battery_level: int
+    inventory_count: int
     message: str                  # Textual context for LLM
 
 class Action(BaseModel):
     model_config = ConfigDict(strict=True)
-    command: Literal["FORWARD", "BACKWARD", "TURN_LEFT", "TURN_RIGHT", "STOP"]
+    command: Literal["UP", "DOWN", "LEFT", "RIGHT", "COLLECT"]
 
 # --- OpenEnv Standard Spec Models ---
 
