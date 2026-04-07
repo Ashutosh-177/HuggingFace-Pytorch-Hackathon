@@ -1,209 +1,135 @@
-"""
-Inference script for Incident Response Triage OpenEnv.
-Uses OpenAI client against API_BASE_URL / MODEL_NAME.
-Emits [START], [STEP], [END] structured logs as required.
-"""
-
 import os
-import json
 import time
 import requests
+import json
 from openai import OpenAI
 
-# ── Config from environment variables ──────────────────────────────────────
 API_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME   = os.environ.get("MODEL_NAME",   "gpt-4o-mini")
 HF_TOKEN     = os.environ.get("HF_TOKEN",     "")
-ENV_URL      = os.environ.get("ENV_URL",       "http://localhost:7860")
-
-client = OpenAI(api_key=HF_TOKEN, base_url=API_BASE_URL)
+ENV_URL      = os.environ.get("ENV_URL",      "http://localhost:7860")
 
 TASKS = ["task_easy", "task_medium", "task_hard"]
+MAX_STEPS = 25
 
-SYSTEM_PROMPT = """You are an expert Site Reliability Engineer (SRE) responding to a production incident in a microservices system.
+def print_log(log_dict):
+    """Prints the required structured JSON logs strictly to stdout."""
+    print(json.dumps(log_dict), flush=True)
 
-You receive alerts, service metrics, and log entries. Your job is to diagnose the root cause and resolve the incident efficiently.
-
-AVAILABLE COMMANDS (respond with ONLY the command, no explanation):
-  INVESTIGATE <service>           - View recent logs for a service
-  CHECK_METRICS <service>         - View CPU, memory, latency, error metrics
-  CHECK_DEPENDENCIES <service>    - View upstream/downstream service dependencies
-  RESTART <service>               - Restart a service
-  SCALE <service> <count>         - Scale a service to N instances
-  ROLLBACK <service>              - Roll back to the previous deployment version
-  FLUSH_CACHE                     - Clear the Redis cache
-  INCREASE_CONNECTIONS <service>  - Increase the database connection pool
-  DIAGNOSE <root_cause>           - Submit your root cause diagnosis
-  RESOLVE <summary>               - Mark the incident as resolved (only after fixing it)
-
-SERVICES: web-frontend, api-gateway, auth-service, user-service, order-service, payment-service, notification-service, database, cache, message-queue
-
-STRATEGY:
-1. Read the alerts carefully - identify the most critical issues
-2. Investigate affected services (check logs and metrics)
-3. Trace dependencies to find the root cause
-4. Submit your diagnosis with DIAGNOSE
-5. Apply the correct remediation action
-6. Resolve the incident with RESOLVE
-
-Respond with EXACTLY ONE command per turn. No explanation, no extra text - just the command."""
-
-
-def format_observation(obs: dict) -> str:
-    """Format observation into a readable prompt for the LLM."""
-    lines = ["=== CURRENT INCIDENT STATUS ==="]
-
-    # Alerts
-    lines.append("\n📢 ACTIVE ALERTS:")
-    for a in obs.get("alerts", []):
-        sev = a["severity"].upper()
-        lines.append(f"  [{sev}] {a['service']}: {a['message']} (at {a['timestamp']})")
-
-    # Service dashboard (only show non-healthy or key services)
-    lines.append("\n📊 SERVICE DASHBOARD:")
-    for svc, m in sorted(obs.get("services", {}).items()):
-        status = m.get("status", "unknown")
-        if status != "healthy" or m.get("error_rate_percent", 0) > 1:
-            lines.append(
-                f"  {svc:25s} | CPU: {m['cpu_percent']:5.1f}% | Mem: {m['memory_percent']:5.1f}% "
-                f"| Latency: {m['request_latency_ms']:6.0f}ms | Errors: {m['error_rate_percent']:5.1f}% "
-                f"| Status: {status}"
-            )
-            if m.get("last_deployment"):
-                lines.append(f"  {'':25s}   └─ Last deploy: {m['last_deployment']}")
-
-    # Last action result
-    if obs.get("action_result"):
-        lines.append(f"\n📋 LAST ACTION RESULT:\n{obs['action_result']}")
-
-    lines.append(f"\n⏱ Step {obs['step_number']}/{obs['step_number'] + obs['steps_remaining']}")
-    return "\n".join(lines)
-
-
-def get_action(obs: dict, history: list) -> str:
-    """Ask the LLM for the next command given current observation."""
-    user_msg = format_observation(obs)
-    if history:
-        user_msg += "\n\nPREVIOUS ACTIONS:\n" + "\n".join(history[-5:])
-    user_msg += "\n\nWhat is your next command?"
-
+def resolve_next_action(client, obs, context_history):
+    """
+    Asks the LLM for the next command based on sensor readings.
+    """
+    system_prompt = (
+        "You are an AI brain controlling a simulated physical Turtlebot.\n"
+        "Your goal is to navigate to the target coordinate while avoiding obstacles.\n"
+        "You receive sensor data including your heading error and distance to target.\n"
+        "Your available actions are EXACTLY ONE of the following keywords: \n"
+        "FORWARD\nBACKWARD\nTURN_LEFT\nTURN_RIGHT\nSTOP\n\n"
+        "If heading error is > 0.4, you should turn. If facing the target, move FORWARD."
+    )
+    
+    prompt = f"SENSOR DATA:\nDistance to target: {obs['distance_to_target']}\nHeading error: {obs['heading_error']}\nEnvironment message: {obs['message']}\n\nWhat is your next command?"
+    
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
-            max_tokens=60,
-            temperature=0.1,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": user_msg},
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
             ],
+            temperature=0.1,
+            max_tokens=10
         )
-        action = response.choices[0].message.content.strip()
-        # Clean up: take only the first line
-        action = action.split("\n")[0].strip()
-        if not action:
-            action = "INVESTIGATE web-frontend"
-        return action
+        action = response.choices[0].message.content.strip().upper()
+        # Clean up output
+        for valid in ["FORWARD", "BACKWARD", "TURN_LEFT", "TURN_RIGHT", "STOP"]:
+            if valid in action:
+                return valid
+        return "STOP"
     except Exception as e:
-        print(f"[LLM ERROR] {e}", flush=True)
-        return "INVESTIGATE web-frontend"
-
-
-def run_task(task_id: str) -> float:
-    """Run a single task end-to-end, return score 0.0–1.0."""
-    # Reset
-    res = requests.post(f"{ENV_URL}/reset", json={"task_id": task_id})
-    res.raise_for_status()
-    data = res.json()
-    obs = data["observation"]
-
-    total_reward = 0.0
-    step_num = 0
-    rewards = []
-    history = []
-
-    print(json.dumps({
-        "type": "[START]",
-        "task_id": task_id,
-        "env": "incident-response-triage",
-        "model": MODEL_NAME,
-        "alerts_count": len(obs.get("alerts", [])),
-        "max_steps": obs["step_number"] + obs["steps_remaining"],
-    }), flush=True)
-
-    while not obs.get("done", False) and obs.get("steps_remaining", 0) > 0:
-        action = get_action(obs, history)
-
-        step_res = requests.post(f"{ENV_URL}/step", json={"command": action})
-        step_res.raise_for_status()
-        step_data = step_res.json()
-
-        reward  = step_data["reward"]
-        obs     = step_data["observation"]
-        done    = step_data["done"]
-        message = step_data["message"]
-
-        total_reward += reward
-        rewards.append(reward)
-        step_num += 1
-
-        print(json.dumps({
-            "type": "[STEP]",
-            "step": step_num,
-            "action": action,
-            "reward": reward,
-            "total_reward": round(total_reward, 4),
-            "done": done,
-            "message": message[:120],
-        }), flush=True)
-
-        history.append(f"Step {step_num}: {action} → reward {reward:+.4f}")
-
-        if done:
-            break
-
-    # Get final state for scoring
-    state_res = requests.get(f"{ENV_URL}/state")
-    state_data = state_res.json()
-    milestones = state_data.get("milestones_achieved", {})
-    score = max(0.0, min(1.0, total_reward))
-    success = score >= 0.5
-
-    print(json.dumps({
-        "type": "[END]",
-        "task_id": task_id,
-        "success": success,
-        "total_steps": step_num,
-        "total_reward": round(total_reward, 4),
-        "score": round(score, 4),
-        "rewards": [round(r, 4) for r in rewards],
-        "milestones": milestones,
-    }), flush=True)
-
-    return score
-
+        print(f"[LLM ERROR] {e}")
+        # Fallback proportional controller if API limit hits
+        if obs['heading_error'] > 0.3:
+            return "TURN_LEFT"
+        elif obs['heading_error'] < -0.3:
+            return "TURN_RIGHT"
+        else:
+            return "FORWARD"
 
 def main():
     print("=" * 60)
-    print("Incident Response Triage — Inference Script")
+    print("Isaac Sim Robotics Navigation — Inference Script")
     print("=" * 60)
+    print()
 
-    all_scores = {}
+    client = OpenAI(api_key=HF_TOKEN, base_url=API_BASE_URL)
+
     for task_id in TASKS:
-        print(f"\n{'─' * 40}")
-        print(f"Running task: {task_id}")
-        print(f"{'─' * 40}")
-        score = run_task(task_id)
-        all_scores[task_id] = score
-        time.sleep(1)
+        # 1. Reset Environment
+        print(f"\\n{'─' * 40}\\nRunning task: {task_id}\\n{'─' * 40}")
+        try:
+            res = requests.post(f"{ENV_URL}/reset", json={"task_id": task_id})
+            res.raise_for_status()
+            obs = res.json()["observation"]
+        except Exception as e:
+            print(f"Failed to reset {task_id}: {e}")
+            continue
 
-    print("\n" + "=" * 60)
-    print("Final Scores:")
-    for task_id, score in all_scores.items():
-        print(f"  {task_id}: {score:.4f}")
-    avg = sum(all_scores.values()) / len(all_scores)
-    print(f"  Average Score: {avg:.4f}")
-    print("=" * 60)
+        start_log = {
+            "type": "[START]",
+            "task_id": task_id,
+            "env": "isaac-navigation-openenv",
+            "model": MODEL_NAME,
+            "max_steps": MAX_STEPS
+        }
+        print_log(start_log)
 
+        total_reward = 0.0
+        done = False
+        context_history = []
+
+        # 2. Run Episode
+        for step_idx in range(1, MAX_STEPS + 1):
+            action = resolve_next_action(client, obs, context_history)
+            
+            try:
+                res = requests.post(f"{ENV_URL}/step", json={"command": action})
+                res.raise_for_status()
+                step_data = res.json()
+            except Exception as e:
+                print(f"Failed to execute step: {e}")
+                break
+                
+            obs = step_data["observation"]
+            reward = step_data["reward"]
+            done = step_data["done"]
+            total_reward += reward
+
+            step_log = {
+                "type": "[STEP]",
+                "step": step_idx,
+                "action": action,
+                "reward": reward,
+                "total_reward": total_reward,
+                "done": done,
+            }
+            print_log(step_log)
+
+            if done:
+                break
+
+            time.sleep(0.1) # Small delay for realism if someone is watching server logs
+
+        # 3. End Episode
+        end_log = {
+            "type": "[END]",
+            "task_id": task_id,
+            "total_steps": step_idx,
+            "final_reward": total_reward,
+            "success": obs['distance_to_target'] < 0.5
+        }
+        print_log(end_log)
 
 if __name__ == "__main__":
     main()

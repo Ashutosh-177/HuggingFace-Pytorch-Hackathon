@@ -1,5 +1,5 @@
 """
-FastAPI server for the Incident Response Triage OpenEnv environment.
+FastAPI server for the Isaac Sim Robotics OpenEnv environment.
 Exposes reset / step / state / tasks / grade endpoints.
 """
 
@@ -9,17 +9,18 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from environment import IncidentResponseEnv
+
+# Initialize environment logic (this will handle Isaac app launcher internally if available)
+from environment import IncidentResponseEnv as IsaacNavigationEnv
 from models import (
     Action, StepOutput, ResetInput, ResetOutput, State, Task,
 )
 
 app = FastAPI(
-    title="Incident Response Triage — OpenEnv",
+    title="Isaac Sim Navigation — OpenEnv",
     description=(
-        "An OpenEnv-compliant environment simulating production incident "
-        "response. AI agents act as SREs diagnosing and resolving real-world "
-        "infrastructure incidents across a microservices architecture."
+        "An OpenEnv-compliant robotics environment wrapping NVIDIA Isaac Sim. "
+        "AI agents must navigate a physical Turtlebot to reach targets while dodging obstacles."
     ),
     version="1.0.0",
 )
@@ -31,27 +32,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-env = IncidentResponseEnv()
+env = IsaacNavigationEnv()
 
 TASKS = [
     Task(
         id="task_easy",
-        name="Memory Leak Detection",
-        description="Identify and resolve a memory leak in a single service with clear symptoms.",
+        name="Empty Room Navigation",
+        description="Navigate a Turtlebot through an empty room directly to a target cone.",
         difficulty="easy",
         reward_range=[0.0, 1.0],
     ),
     Task(
         id="task_medium",
-        name="Database Connection Exhaustion",
-        description="Diagnose cascading failures caused by database connection pool exhaustion.",
+        name="Static Obstacle Corridor",
+        description="Navigate through a narrow corridor avoiding static boxes to reach the target.",
         difficulty="medium",
         reward_range=[0.0, 1.0],
     ),
     Task(
         id="task_hard",
-        name="Cascading Deployment Failure",
-        description="Investigate a complex cascading failure with misleading symptoms from a bad deployment.",
+        name="Dynamic Obstacle Corridor",
+        description="Navigate a corridor while dodging dynamically moving obstacles to reach the target.",
         difficulty="hard",
         reward_range=[0.0, 1.0],
     ),
@@ -62,19 +63,21 @@ VALID_IDS = {t.id for t in TASKS}
 
 @app.get("/", tags=["health"])
 def health():
-    return {"status": "ok", "env": "incident-response-triage"}
+    return {"status": "ok", "env": "isaac-navigation-openenv"}
 
 
 @app.post("/reset", response_model=ResetOutput, tags=["openenv"])
 def reset(body: ResetInput = ResetInput()):
     if body.task_id not in VALID_IDS:
         raise HTTPException(400, f"task_id must be one of {sorted(VALID_IDS)}")
-    return env.reset(task_id=body.task_id)
+    state = env.reset(task_id=body.task_id)
+    return {"observation": env.get_observation().model_dump()}
 
 
 @app.post("/step", response_model=StepOutput, tags=["openenv"])
 def step(body: Action):
-    return env.step(command=body.command)
+    result = env.step(command=body.command)
+    return result
 
 
 @app.get("/state", response_model=State, tags=["openenv"])

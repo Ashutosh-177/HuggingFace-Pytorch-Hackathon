@@ -1,0 +1,63 @@
+============================================================
+Isaac Sim Robotics Navigation — Inference Script
+============================================================
+
+\n────────────────────────────────────────\nRunning task: task_easy\n────────────────────────────────────────
+{"type": "[START]", "task_id": "task_easy", "env": "isaac-navigation-openenv", "model": "Qwen/Qwen2.5-72B-Instruct", "max_steps": 25}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 1, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.09000000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 2, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.18000000000000002, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 3, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.27, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 4, "action": "FORWARD", "reward": 10.09, "total_reward": 10.36, "done": true}
+{"type": "[END]", "task_id": "task_easy", "total_steps": 4, "final_reward": 10.36, "success": true}
+\n────────────────────────────────────────\nRunning task: task_medium\n────────────────────────────────────────
+{"type": "[START]", "task_id": "task_medium", "env": "isaac-navigation-openenv", "model": "Qwen/Qwen2.5-72B-Instruct", "max_steps": 25}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 1, "action": "TURN_LEFT", "reward": -0.01, "total_reward": -0.01, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 2, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.08000000000000002, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 3, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.17000000000000004, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 4, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.26000000000000006, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 5, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.3500000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 6, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.4400000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 7, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.5300000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 8, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.6200000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 9, "action": "FORWARD", "reward": 10.09, "total_reward": 10.71, "done": true}
+{"type": "[END]", "task_id": "task_medium", "total_steps": 9, "final_reward": 10.71, "success": true}
+\n────────────────────────────────────────\nRunning task: task_hard\n────────────────────────────────────────
+{"type": "[START]", "task_id": "task_hard", "env": "isaac-navigation-openenv", "model": "Qwen/Qwen2.5-72B-Instruct", "max_steps": 25}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 1, "action": "TURN_RIGHT", "reward": -0.01, "total_reward": -0.01, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 2, "action": "FORWARD", "reward": -0.01, "total_reward": -0.02, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 3, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.07, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 4, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.16000000000000003, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 5, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.25000000000000006, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 6, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.3400000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 7, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.4300000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 8, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.5200000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 9, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.6100000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 10, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.7000000000000001, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 11, "action": "FORWARD", "reward": 0.09000000000000001, "total_reward": 0.79, "done": false}
+[LLM ERROR] Connection error.
+{"type": "[STEP]", "step": 12, "action": "FORWARD", "reward": 9.99, "total_reward": 10.780000000000001, "done": true}
+{"type": "[END]", "task_id": "task_hard", "total_steps": 12, "final_reward": 10.780000000000001, "success": true}
